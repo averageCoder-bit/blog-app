@@ -38,3 +38,5 @@ env/
 
 # OS
 Thumbs.db
+
+*.db
