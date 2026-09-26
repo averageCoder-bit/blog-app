@@ -1,14 +1,14 @@
-import "./App.css";
-import Navbar from "./frontend/components/Navbar";
-import Blogs from "./frontend/pages/Blogs";
+import Navbar from "./frontend/layout/Navbar";
+import AppRoutes from "./frontend/routes/Routes";
+import AppNavbar from "./frontend/components/AppNavbar";
 
 function App() {
   return (
     <>
       <Navbar />
-
+      <AppNavbar />
       <main>
-        <Blogs />
+        <AppRoutes />
       </main>
     </>
   );

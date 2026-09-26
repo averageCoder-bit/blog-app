@@ -1,7 +1,7 @@
-import Logo from "./Logo";
+import Logo from "../components/Logo";
 import { Bell, User } from "lucide-react";
-import Profile from "./Profile";
-import SearchAndFilterBar from "./SearchAndFilterBar";
+import Profile from "../components/Profile";
+import SearchAndFilterBar from "../components/SearchAndFilterBar";
 const Navbar = () => {
   return (
     <nav className="flex border-b w-full justify-center items-center border-gray-200 fixed bg-white z-10">
