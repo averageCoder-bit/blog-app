@@ -137,7 +137,17 @@ async def create_blog(
             detail="Failed to create blog.",
         )
 
-    return new_blog
+    return {
+        "id": new_blog.id,
+        "header": new_blog.header,
+        "content": new_blog.content,
+        "excerpt": new_blog.excerpt,
+        "category": new_blog.category,
+        "author_id": new_blog.author_id,
+        "created_at": new_blog.created_at,
+        "updated_at": new_blog.updated_at,
+        "image_url": get_blog_image_url(new_blog.image_key),
+    }
 
 @router.get("/users/{user_id}/blogs", response_model=list[BlogResponse])
 def get_user_blogs(
