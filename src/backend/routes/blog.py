@@ -1,8 +1,26 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    Form,
+    HTTPException,
+    UploadFile,
+)
+from services.r2 import upload_blog_image
 from schemas.blog import BlogCreate, BlogResponse
 from db.database import get_db
 from sqlalchemy.orm import Session
 from models.blog import Blog
+
+
+
+ALLOWED_TYPES = {
+    "image/jpeg": ".jpg",
+    "image/png": ".png",
+    "image/webp": ".webp",
+}
+
+MAX_IMAGE_SIZE = 5 * 1024 * 1024
 
 router = APIRouter()
 
@@ -32,20 +50,69 @@ def get_blogs(
     return blogs
 
 
-@router.post("/users/{user_id}/blogs", response_model=BlogResponse, status_code=201)
-def create_blog(
+@router.post(
+    "/users/{user_id}/blogs",
+    response_model=BlogResponse,
+    status_code=201,
+)
+async def create_blog(
     user_id: int,
-    blog: BlogCreate,
+    header: str = Form(...),
+    content: str = Form(...),
+    excerpt: str | None = Form(None),
+    category: str = Form(...),
+    image: UploadFile | None = File(None),
     db: Session = Depends(get_db),
 ):
     new_blog = Blog(
-        **blog.model_dump(),
+        header=header,
+        content=content,
+        excerpt=excerpt,
+        category=category,
         author_id=user_id,
     )
 
     db.add(new_blog)
-    db.commit()
-    db.refresh(new_blog)
+
+    try:
+        db.flush()
+
+        if image:
+            if image.content_type not in ALLOWED_TYPES:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Unsupported image type.",
+                )
+
+            image_data = await image.read()
+
+            if len(image_data) > MAX_IMAGE_SIZE:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Image must be 5 MB or smaller.",
+                )
+
+            image_key = upload_blog_image(
+                new_blog.id,
+                image_data,
+                image.content_type,
+            )
+
+            new_blog.image_key = image_key
+
+        db.commit()
+        db.refresh(new_blog)
+
+    except HTTPException:
+        db.rollback()
+        raise
+
+    except Exception:
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to create blog.",
+        )
 
     return new_blog
 
