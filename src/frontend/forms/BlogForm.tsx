@@ -2,6 +2,8 @@ import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSearchParams } from "react-router-dom";
+import { UserCreateSchema } from "../validator/users";
 import axios from "axios";
 import {
   Bold,
@@ -33,9 +35,9 @@ const BlogForm = () => {
   const [header, setHeader] = useState<string>("");
   const [preview, setPreview] = useState<string | null>(null);
 
-  const params = new URLSearchParams(window.location.search);
-  const authorId = Number(params.get("user_id"));
+  const [searchParams] = useSearchParams();
 
+  const userId = Number(searchParams.get("user_id"));
   const queryClient = useQueryClient();
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -76,13 +78,12 @@ const BlogForm = () => {
     formData.append("content", blogCreateData.content);
     formData.append("excerpt", blogCreateData.excerpt ?? "");
     formData.append("category", blogCreateData.category);
-    formData.append("author_id", String(blogCreateData.author_id));
 
     if (blogCreateData.image) {
       formData.append("image", blogCreateData.image);
     }
 
-    const res = await axios.post("/api/blogs", formData);
+    const res = await axios.post(`/api/users/${userId}/blogs`, formData);
 
     return res.data;
   };
@@ -114,7 +115,6 @@ const BlogForm = () => {
       content: editor.getHTML(),
       excerpt,
       category,
-      author_id: authorId,
       image: image ?? undefined,
     };
     mutation.mutate(blogCreateData);

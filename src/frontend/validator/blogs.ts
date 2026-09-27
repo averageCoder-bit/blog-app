@@ -23,8 +23,6 @@ export const BlogCreateSchema = z.object({
     .string()
     .min(1, "Category is required")
     .max(50, "Category must be 50 characters or less"),
-
-  author_id: z.number().int(),
 });
 
 export type BlogCreate = z.infer<typeof BlogCreateSchema>;
