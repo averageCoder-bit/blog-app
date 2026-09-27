@@ -7,8 +7,6 @@ class BlogCreate(BaseModel):
     content: str = Field(min_length=1)
     excerpt: str | None = Field(default=None, max_length=300)
     category: str = Field(min_length=1, max_length=50)
-    author_id: int
-
 
 class BlogUpdate(BaseModel):
     header: str | None = Field(default=None, min_length=1, max_length=150)
