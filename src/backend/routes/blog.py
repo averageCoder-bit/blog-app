@@ -6,7 +6,7 @@ from fastapi import (
     HTTPException,
     UploadFile,
 )
-from services.r2 import upload_blog_image
+from services.r2 import upload_blog_image, get_blog_image_url
 from schemas.blog import BlogCreate, BlogResponse
 from db.database import get_db
 from sqlalchemy.orm import Session
@@ -38,7 +38,17 @@ def get_blog(
             detail="Blog not found",
         )
 
-    return blog
+    return {
+        "id": blog.id,
+        "header": blog.header,
+        "content": blog.content,
+        "excerpt": blog.excerpt,
+        "category": blog.category,
+        "author_id": blog.author_id,
+        "created_at": blog.created_at,
+        "updated_at": blog.updated_at,
+        "image_url": get_blog_image_url(blog.image_key),
+    }
 
 
 @router.get("/blogs", response_model=list[BlogResponse])
@@ -47,7 +57,20 @@ def get_blogs(
 ):
     blogs = db.query(Blog).all()
 
-    return blogs
+    return [
+        {
+            "id": blog.id,
+            "header": blog.header,
+            "content": blog.content,
+            "excerpt": blog.excerpt,
+            "category": blog.category,
+            "author_id": blog.author_id,
+            "created_at": blog.created_at,
+            "updated_at": blog.updated_at,
+            "image_url": get_blog_image_url(blog.image_key),
+        }
+        for blog in blogs
+    ]
 
 
 @router.post(
@@ -127,4 +150,17 @@ def get_user_blogs(
         .all()
     )
 
-    return blogs
+    return [
+        {
+            "id": blog.id,
+            "header": blog.header,
+            "content": blog.content,
+            "excerpt": blog.excerpt,
+            "category": blog.category,
+            "author_id": blog.author_id,
+            "created_at": blog.created_at,
+            "updated_at": blog.updated_at,
+            "image_url": get_blog_image_url(blog.image_key),
+        }
+        for blog in blogs
+    ]

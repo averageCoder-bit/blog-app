@@ -44,3 +44,16 @@ def upload_blog_image(blog_id: int, image_data: bytes, content_type: str) -> str
     )
 
     return object_key
+
+def get_blog_image_url(image_key: str | None) -> str | None:
+    if not image_key:
+        return None
+
+    return r2_client.generate_presigned_url(
+        "get_object",
+        Params={
+            "Bucket": R2_BUCKET_NAME,
+            "Key": image_key,
+        },
+        ExpiresIn=3600,
+    )
