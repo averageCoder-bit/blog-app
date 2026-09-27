@@ -34,6 +34,7 @@ export const BlogResponseSchema = z.object({
   author_id: z.number().int(),
   created_at: z.string(),
   updated_at: z.string(),
+  image_url: z.string().nullable(),
 });
 
 export type BlogResponse = z.infer<typeof BlogResponseSchema>;

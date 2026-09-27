@@ -1,5 +1,5 @@
-import { Heart, Eye, MessageSquare, Ellipsis } from "lucide-react";
-
+import { Heart, Eye, MessageSquare } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import type { BlogResponse } from "../validator/blogs";
 
 interface BlogProps {
@@ -7,8 +7,12 @@ interface BlogProps {
 }
 
 const Blog = ({ blog }: BlogProps) => {
+  const navigate = useNavigate();
   return (
-    <div className="relative flex h-full w-full flex-col justify-between rounded-2xl shadow-sm shadow-gray-200 transition-transform duration-300 ease-in-out hover:scale-102 hover:cursor-pointer">
+    <div
+      onClick={() => navigate(`/blogs/${blog.id}`)}
+      className="relative flex h-full w-full flex-col justify-between rounded-2xl shadow-sm shadow-gray-200 transition-transform duration-300 ease-in-out hover:scale-102 hover:cursor-pointer"
+    >
       {/* 
       <button
         type="button"
@@ -20,7 +24,7 @@ const Blog = ({ blog }: BlogProps) => {
 
       <img
         className="h-[60%] rounded-t-2xl bg-gray-200 object-cover"
-        // src={blog.image_url ?? ""}
+        src={blog.image_url ?? ""}
         alt={blog.header}
       />
 

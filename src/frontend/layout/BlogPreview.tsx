@@ -52,7 +52,11 @@ const BlogPreview = () => {
         <p className="text-sm text-gray-600">User {blog.author_id}</p>
 
         <p className="text-sm text-gray-500">
-          {new Date(blog.created_at).toLocaleDateString()}
+          {new Date(blog.created_at).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })}
         </p>
       </div>
       <h1 className="text-4xl font-bold leading-tight">{blog.header}</h1>
@@ -63,7 +67,11 @@ const BlogPreview = () => {
         <p className="text-lg leading-relaxed text-gray-600">{blog.excerpt}</p>
       )}
       <div className="aspect-video w-full overflow-hidden rounded-2xl bg-gray-100">
-        <img src="" alt={blog.header} className="h-full w-full object-cover" />
+        <img
+          src={blog.image_url ?? ""}
+          alt={blog.header}
+          className="h-full w-full object-cover"
+        />
       </div>
       <div
         className="prose max-w-none"
