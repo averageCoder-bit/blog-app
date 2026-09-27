@@ -13,9 +13,6 @@ load_dotenv()
 engine = create_engine(
     os.getenv("DATABASE_URL"),
     echo=True,
-    connect_args={
-        "check_same_thread": False
-    }
 )
 
 SessionLocal = sessionmaker(
@@ -32,5 +29,3 @@ def get_db():
     finally:
         db.close()
 
-
-Base.metadata.create_all(bind=engine)
