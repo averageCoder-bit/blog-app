@@ -48,3 +48,4 @@ def create_blog(
     db.refresh(new_blog)
 
     return new_blog
+

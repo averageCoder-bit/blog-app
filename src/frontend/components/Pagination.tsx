@@ -14,7 +14,7 @@ const Pagination = ({
   }
 
   return (
-    <div className="flex items-center justify-center gap-2">
+    <div className="flex items-center justify-center gap-2 w-full py-10">
       <button
         type="button"
         disabled={currentPage === 1}

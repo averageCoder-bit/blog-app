@@ -9,7 +9,6 @@ interface BlogProps {
 const Blog = ({ blog }: BlogProps) => {
   return (
     <div className="relative flex h-full w-full flex-col justify-between rounded-2xl shadow-sm shadow-gray-200 transition-transform duration-300 ease-in-out hover:scale-102 hover:cursor-pointer">
-      {/* Management button - functionality later */}
       {/* 
       <button
         type="button"
