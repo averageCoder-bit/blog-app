@@ -25,4 +25,16 @@ export const BlogCreateSchema = z.object({
     .max(50, "Category must be 50 characters or less"),
 });
 
+export const BlogResponseSchema = z.object({
+  id: z.number().int(),
+  header: z.string(),
+  content: z.string(),
+  excerpt: z.string().nullable(),
+  category: z.string(),
+  author_id: z.number().int(),
+  created_at: z.string(),
+  updated_at: z.string(),
+});
+
+export type BlogResponse = z.infer<typeof BlogResponseSchema>;
 export type BlogCreate = z.infer<typeof BlogCreateSchema>;

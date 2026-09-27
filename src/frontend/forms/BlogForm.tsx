@@ -3,7 +3,7 @@ import StarterKit from "@tiptap/starter-kit";
 import { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
-import { UserCreateSchema } from "../validator/users";
+import type { UserResponse } from "../validator/users";
 import axios from "axios";
 import {
   Bold,
@@ -24,7 +24,11 @@ import {
 import type { BlogCreate } from "../validator/blogs";
 import CustomDropdown from "../components/CustomDropdown";
 
-const BlogForm = () => {
+interface BlogFormProps {
+  currentUser: UserResponse | null;
+}
+
+const BlogForm = ({ currentUser }: BlogFormProps) => {
   useEffect(() => {
     document.title = "Create Post | Chronicle";
   }, []);
@@ -83,7 +87,14 @@ const BlogForm = () => {
       formData.append("image", blogCreateData.image);
     }
 
-    const res = await axios.post(`/api/users/${userId}/blogs`, formData);
+    if (!currentUser) {
+      return;
+    }
+
+    const res = await axios.post(
+      `/api/users/${currentUser.id}/blogs`,
+      formData,
+    );
 
     return res.data;
   };
