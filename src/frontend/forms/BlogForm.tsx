@@ -2,7 +2,6 @@ import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useSearchParams } from "react-router-dom";
 import type { UserResponse } from "../validator/users";
 import axios from "axios";
 import {
@@ -39,9 +38,6 @@ const BlogForm = ({ currentUser }: BlogFormProps) => {
   const [header, setHeader] = useState<string>("");
   const [preview, setPreview] = useState<string | null>(null);
 
-  const [searchParams] = useSearchParams();
-
-  const userId = Number(searchParams.get("user_id"));
   const queryClient = useQueryClient();
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
