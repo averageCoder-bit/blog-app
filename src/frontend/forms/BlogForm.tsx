@@ -26,7 +26,7 @@ const BlogForm = () => {
   useEffect(() => {
     document.title = "Create Post | Chronicle";
   }, []);
-  const [, setImage] = useState<File | null>(null);
+  const [image, setImage] = useState<File | null>(null);
   // const [error, setError] = useState<string>("");
   const [category, setCategory] = useState<string>("");
   const [excerpt, setExcerpt] = useState<string>("");
@@ -70,7 +70,20 @@ const BlogForm = () => {
   };
 
   const createBlog = async (blogCreateData: BlogCreate) => {
-    const res = await axios.post("/blog", blogCreateData);
+    const formData = new FormData();
+
+    formData.append("header", blogCreateData.header);
+    formData.append("content", blogCreateData.content);
+    formData.append("excerpt", blogCreateData.excerpt ?? "");
+    formData.append("category", blogCreateData.category);
+    formData.append("author_id", String(blogCreateData.author_id));
+
+    if (blogCreateData.image) {
+      formData.append("image", blogCreateData.image);
+    }
+
+    const res = await axios.post("/api/blogs", formData);
+
     return res.data;
   };
 
@@ -81,6 +94,12 @@ const BlogForm = () => {
       queryClient.invalidateQueries({
         queryKey: ["blogs"],
       });
+      setHeader("");
+      setExcerpt("");
+      setCategory("");
+      editor.commands.clearContent();
+      setImage(null);
+      setPreview(null);
     },
     onError: (error) => {
       console.error("Failed to create blog:", error);
@@ -96,6 +115,7 @@ const BlogForm = () => {
       excerpt,
       category,
       author_id: authorId,
+      image: image ?? undefined,
     };
     mutation.mutate(blogCreateData);
   };
@@ -140,6 +160,7 @@ const BlogForm = () => {
         <input
           onChange={handleHeaderChange}
           type="text"
+          maxLength={150}
           className="rounded-lg border border-gray-200 bg-gray-100 p-2 focus:outline-none"
           required
         />
@@ -405,6 +426,7 @@ const BlogForm = () => {
             disabled:cursor-not-allowed
             disabled:bg-gray-300
             disabled:text-gray-500
+            hover:cursor-pointer
           "
         >
           {mutation.isPending ? "Publishing..." : "Publish"}
