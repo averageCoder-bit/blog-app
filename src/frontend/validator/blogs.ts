@@ -32,6 +32,7 @@ export const BlogResponseSchema = z.object({
   excerpt: z.string().nullable(),
   category: z.string(),
   author_id: z.number().int(),
+  author_username: z.string(),
   created_at: z.string(),
   updated_at: z.string(),
   image_url: z.string().nullable(),

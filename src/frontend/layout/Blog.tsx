@@ -36,7 +36,7 @@ const Blog = ({ blog }: BlogProps) => {
         <div className="flex flex-row items-center space-x-2">
           <img src="" alt="" className="h-5 w-5 rounded-full bg-gray-100" />
 
-          <p className="text-xs text-gray-500">User {blog.author_id}</p>
+          <p className="text-xs text-gray-500">{blog.author_username}</p>
         </div>
       </div>
 
