@@ -49,3 +49,15 @@ def create_blog(
 
     return new_blog
 
+@router.get("/users/{user_id}/blogs", response_model=list[BlogResponse])
+def get_user_blogs(
+    user_id: int,
+    db: Session = Depends(get_db),
+):
+    blogs = (
+        db.query(Blog)
+        .filter(Blog.author_id == user_id)
+        .all()
+    )
+
+    return blogs
