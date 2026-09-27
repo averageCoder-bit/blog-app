@@ -30,6 +30,7 @@ class Blog(Base):
         onupdate=func.now(),
         nullable=False
     )
+    image_key = Column(String, nullable=True)
 
     author = relationship("User", back_populates="blogs")
     comments = relationship("Comment", back_populates="blog")
