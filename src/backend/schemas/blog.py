@@ -24,5 +24,5 @@ class BlogResponse(BaseModel):
     author_id: int
     created_at: datetime
     updated_at: datetime
-    image_key: str | None
+    image_url: str | None
     model_config = {"from_attributes": True}
