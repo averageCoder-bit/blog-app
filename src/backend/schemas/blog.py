@@ -21,6 +21,7 @@ class BlogResponse(BaseModel):
     content: str
     excerpt: str | None
     category: str
+    author_username: str
     author_id: int
     created_at: datetime
     updated_at: datetime
