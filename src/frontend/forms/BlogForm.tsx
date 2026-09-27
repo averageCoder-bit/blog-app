@@ -1,6 +1,8 @@
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { useState, useEffect } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
 import {
   Bold,
   Italic,
@@ -17,7 +19,7 @@ import {
   Quote,
   X,
 } from "lucide-react";
-
+import type { BlogCreate } from "../validator/blogs";
 import CustomDropdown from "../components/CustomDropdown";
 
 const BlogForm = () => {
@@ -30,6 +32,11 @@ const BlogForm = () => {
   const [excerpt, setExcerpt] = useState<string>("");
   const [header, setHeader] = useState<string>("");
   const [preview, setPreview] = useState<string | null>(null);
+
+  const params = new URLSearchParams(window.location.search);
+  const authorId = Number(params.get("user_id"));
+
+  const queryClient = useQueryClient();
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -61,8 +68,36 @@ const BlogForm = () => {
   const handleHeaderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setHeader(e.target.value);
   };
+
+  const createBlog = async (blogCreateData: BlogCreate) => {
+    const res = await axios.post("/blog", blogCreateData);
+    return res.data;
+  };
+
+  const mutation = useMutation({
+    mutationFn: createBlog,
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["blogs"],
+      });
+    },
+    onError: (error) => {
+      console.error("Failed to create blog:", error);
+    },
+  });
+
   const handleBlogSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    const blogCreateData: BlogCreate = {
+      header,
+      content: editor.getHTML(),
+      excerpt,
+      category,
+      author_id: authorId,
+    };
+    mutation.mutate(blogCreateData);
   };
   const editor = useEditor({
     extensions: [StarterKit],
@@ -354,11 +389,15 @@ const BlogForm = () => {
             onChange={handleImageChange}
           />
         </label>
+        {mutation.isError && (
+          <p className="text-red-400">Failed to publish your post.</p>
+        )}
+        {mutation.isSuccess && <p>Post published successfully!</p>}
       </div>
       <div>
         <button
           type="submit"
-          disabled={!isFormValid}
+          disabled={!isFormValid || mutation.isPending}
           className="
             w-40 rounded-2xl p-3
             bg-black text-white
@@ -368,7 +407,7 @@ const BlogForm = () => {
             disabled:text-gray-500
           "
         >
-          Create Post
+          {mutation.isPending ? "Publishing..." : "Publish"}
         </button>
       </div>
     </form>
