@@ -7,6 +7,7 @@ import Logo from "../components/Logo";
 import Profile from "../components/Profile";
 import SearchAndFilterBar from "../components/SearchAndFilterBar";
 import type { UserResponse } from "../validator/users";
+import API_URL from "../api";
 
 interface NavbarProps {
   currentUser: UserResponse | null;
@@ -14,7 +15,7 @@ interface NavbarProps {
 }
 
 const getUsers = async (): Promise<UserResponse[]> => {
-  const response = await axios.get("/api/users");
+  const response = await axios.get(`${API_URL}/users`);
   return response.data;
 };
 

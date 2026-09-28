@@ -4,13 +4,14 @@ import { Pen } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { SquarePen } from "lucide-react";
+import API_URL from "../api";
 
 import Pagination from "../components/Pagination";
 import BlogGrid from "../layout/BlogGrid";
 import type { BlogResponse } from "../validator/blogs";
 
 const getBlogs = async (): Promise<BlogResponse[]> => {
-  const response = await axios.get("/api/blogs");
+  const response = await axios.get(`${API_URL}/blogs`);
   return response.data;
 };
 

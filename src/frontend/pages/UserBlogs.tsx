@@ -7,13 +7,14 @@ import Pagination from "../components/Pagination";
 import BlogGrid from "../layout/BlogGrid";
 import type { BlogResponse } from "../validator/blogs";
 import type { UserResponse } from "../validator/users";
+import API_URL from "../api";
 
 interface UserBlogsProps {
   currentUser: UserResponse | null;
 }
 
 const getUserBlogs = async (userId: number): Promise<BlogResponse[]> => {
-  const response = await axios.get(`/api/users/${userId}/blogs`);
+  const response = await axios.get(`${API_URL}/users/${userId}/blogs`);
   return response.data;
 };
 

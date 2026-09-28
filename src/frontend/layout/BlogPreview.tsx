@@ -2,11 +2,12 @@ import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
+import API_URL from "../api";
 
 import type { BlogResponse } from "../validator/blogs";
 
 const getBlog = async (id: number): Promise<BlogResponse> => {
-  const response = await axios.get(`/api/blogs/${id}`);
+  const response = await axios.get(`${API_URL}/blogs/${id}`);
   return response.data;
 };
 

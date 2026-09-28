@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { UserResponse } from "../validator/users";
 import axios from "axios";
+import API_URL from "../api";
 import {
   Bold,
   Italic,
@@ -88,7 +89,7 @@ const BlogForm = ({ currentUser }: BlogFormProps) => {
     }
 
     const res = await axios.post(
-      `/api/users/${currentUser.id}/blogs`,
+      `${API_URL}/users/${currentUser.id}/blogs`,
       formData,
     );
 
