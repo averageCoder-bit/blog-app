@@ -10,8 +10,17 @@ from models.comment import Comment
 
 load_dotenv()
 
+database_url = os.getenv("DATABASE_URL")
+
+if database_url and database_url.startswith("postgresql://"):
+    database_url = database_url.replace(
+        "postgresql://",
+        "postgresql+psycopg://",
+        1,
+    )
+
 engine = create_engine(
-    os.getenv("DATABASE_URL"),
+    database_url,
     echo=True,
 )
 
