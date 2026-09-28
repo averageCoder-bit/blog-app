@@ -146,6 +146,7 @@ async def create_blog(
         "excerpt": new_blog.excerpt,
         "category": new_blog.category,
         "author_id": new_blog.author_id,
+        "author_username": new_blog.author.username,
         "created_at": new_blog.created_at,
         "updated_at": new_blog.updated_at,
         "image_url": get_blog_image_url(new_blog.image_key),
