@@ -19,7 +19,7 @@ const Pagination = ({
         type="button"
         disabled={currentPage === 1}
         onClick={() => onPageChange(currentPage - 1)}
-        className="rounded-lg border px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
+        className="rounded-lg border px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50 hover:cursor-pointer"
       >
         Previous
       </button>
@@ -32,7 +32,7 @@ const Pagination = ({
             key={page}
             type="button"
             onClick={() => onPageChange(page)}
-            className={`h-9 w-9 rounded-lg text-sm ${
+            className={`h-9 w-9 rounded-lg text-sm hover:cursor-pointer ${
               currentPage === page
                 ? "bg-black text-white"
                 : "border hover:bg-gray-100"
@@ -47,7 +47,7 @@ const Pagination = ({
         type="button"
         disabled={currentPage === totalPages}
         onClick={() => onPageChange(currentPage + 1)}
-        className="rounded-lg border px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
+        className="rounded-lg border px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50 hover:cursor-pointer"
       >
         Next
       </button>

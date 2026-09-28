@@ -68,14 +68,22 @@ const BlogPreview = () => {
         <p className="text-lg leading-relaxed text-gray-600">{blog.excerpt}</p>
       )}
       <div className="aspect-video w-full overflow-hidden rounded-2xl bg-gray-100">
-        <img
-          src={blog.image_url ?? ""}
-          alt={blog.header}
-          className="h-full w-full object-cover"
-        />
+        <div className="aspect-video w-full overflow-hidden rounded-2xl bg-gray-100">
+          {blog.image_url ? (
+            <img
+              src={blog.image_url}
+              alt={blog.header}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <div className="flex h-full items-center justify-center text-sm text-gray-400">
+              No image available
+            </div>
+          )}
+        </div>
       </div>
       <div
-        className="prose max-w-none"
+        className="blog-content max-w-none"
         dangerouslySetInnerHTML={{ __html: blog.content }}
       />
     </article>

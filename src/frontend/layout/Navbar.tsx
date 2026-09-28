@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { Bell, User } from "lucide-react";
-
+import type { BlogResponse } from "../validator/blogs";
 import Logo from "../components/Logo";
 import Profile from "../components/Profile";
 import SearchAndFilterBar from "../components/SearchAndFilterBar";
@@ -12,6 +12,15 @@ import API_URL from "../api";
 interface NavbarProps {
   currentUser: UserResponse | null;
   setCurrentUser: React.Dispatch<React.SetStateAction<UserResponse | null>>;
+
+  search: string;
+  onSearchChange: (value: string) => void;
+
+  category: string;
+  onCategoryChange: (value: string) => void;
+
+  sort: "newest" | "oldest" | "title";
+  onSortChange: (value: "newest" | "oldest" | "title") => void;
 }
 
 const getUsers = async (): Promise<UserResponse[]> => {
@@ -19,8 +28,40 @@ const getUsers = async (): Promise<UserResponse[]> => {
   return response.data;
 };
 
-const Navbar = ({ currentUser, setCurrentUser }: NavbarProps) => {
+const getBlogs = async (): Promise<BlogResponse[]> => {
+  const response = await axios.get(`${API_URL}/blogs`);
+  return response.data;
+};
+
+const Navbar = ({
+  currentUser,
+  setCurrentUser,
+  search,
+  onSearchChange,
+  category,
+  onCategoryChange,
+  sort,
+  onSortChange,
+}: NavbarProps) => {
   const [showUsers, setShowUsers] = useState(false);
+  const usersRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        usersRef.current &&
+        !usersRef.current.contains(event.target as Node)
+      ) {
+        setShowUsers(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const {
     data: users = [],
@@ -32,6 +73,14 @@ const Navbar = ({ currentUser, setCurrentUser }: NavbarProps) => {
     staleTime: 1000 * 60 * 5,
   });
 
+  const { data: blogs = [] } = useQuery({
+    queryKey: ["blogs"],
+    queryFn: getBlogs,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const categories = [...new Set(blogs.map((blog) => blog.category))];
+
   const handleUserSelect = (user: UserResponse) => {
     setCurrentUser(user);
     setShowUsers(false);
@@ -42,7 +91,15 @@ const Navbar = ({ currentUser, setCurrentUser }: NavbarProps) => {
       <div className="flex w-7xl flex-row items-center justify-evenly px-4 py-6">
         <Logo />
 
-        <SearchAndFilterBar />
+        <SearchAndFilterBar
+          search={search}
+          onSearchChange={onSearchChange}
+          category={category}
+          onCategoryChange={onCategoryChange}
+          sort={sort}
+          onSortChange={onSortChange}
+          categories={categories}
+        />
 
         <Profile />
 
@@ -54,7 +111,7 @@ const Navbar = ({ currentUser, setCurrentUser }: NavbarProps) => {
             <Bell size={20} />
           </button>
 
-          <div className="relative">
+          <div ref={usersRef} className="relative">
             <button
               type="button"
               title="User Profile"
@@ -65,7 +122,7 @@ const Navbar = ({ currentUser, setCurrentUser }: NavbarProps) => {
                 <User />
               </div>
 
-              <p className="text-sm">
+              <p className="text-sm w-20">
                 {currentUser?.username ?? "Select user"}
               </p>
             </button>

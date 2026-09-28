@@ -22,11 +22,17 @@ const Blog = ({ blog }: BlogProps) => {
       </button>
       */}
 
-      <img
-        className="h-[60%] rounded-t-2xl bg-gray-200 object-cover"
-        src={blog.image_url ?? ""}
-        alt={blog.header}
-      />
+      {blog.image_url ? (
+        <img
+          className="h-[60%] rounded-t-2xl bg-gray-200 object-cover"
+          src={blog.image_url}
+          alt={blog.header}
+        />
+      ) : (
+        <div className="flex h-[60%] items-center justify-center rounded-t-2xl bg-gray-200 text-sm text-gray-400">
+          No image available
+        </div>
+      )}
 
       <div id="content" className="flex h-[25%] flex-col gap-2 p-4">
         <h1 title={blog.header} className="line-clamp-2 text-2xl font-semibold">
@@ -34,7 +40,10 @@ const Blog = ({ blog }: BlogProps) => {
         </h1>
 
         <div className="flex flex-row items-center space-x-2">
-          <img src="" alt="" className="h-5 w-5 rounded-full bg-gray-100" />
+          <img
+            alt="user-profile"
+            className="h-5 w-5 rounded-full bg-gray-100"
+          />
 
           <p className="text-xs text-gray-500">{blog.author_username}</p>
         </div>
