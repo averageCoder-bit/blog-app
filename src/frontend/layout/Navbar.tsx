@@ -12,13 +12,10 @@ import API_URL from "../api";
 interface NavbarProps {
   currentUser: UserResponse | null;
   setCurrentUser: React.Dispatch<React.SetStateAction<UserResponse | null>>;
-
   search: string;
   onSearchChange: (value: string) => void;
-
   category: string;
   onCategoryChange: (value: string) => void;
-
   sort: "newest" | "oldest" | "title";
   onSortChange: (value: "newest" | "oldest" | "title") => void;
 }
@@ -55,9 +52,7 @@ const Navbar = ({
         setShowUsers(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -87,23 +82,86 @@ const Navbar = ({
   };
 
   return (
-    <nav className="fixed z-10 flex w-full items-center justify-center border-b border-gray-200 bg-white">
-      <div className="flex w-7xl flex-row items-center justify-evenly px-4 py-6">
-        <Logo />
+    <nav className="fixed z-10 w-full border-b border-gray-200 bg-white">
+      <div className="mx-auto flex max-w-7xl flex-col px-4 py-3 md:flex-row md:items-center md:justify-between md:py-4 gap-3 md:gap-4">
+        <div className="flex w-full items-center justify-between md:w-auto md:justify-start gap-4">
+          <Logo />
+          <div className="flex flex-row items-center gap-2 md:hidden">
+            <Profile />
 
-        <SearchAndFilterBar
-          search={search}
-          onSearchChange={onSearchChange}
-          category={category}
-          onCategoryChange={onCategoryChange}
-          sort={sort}
-          onSortChange={onSortChange}
-          categories={categories}
-        />
+            <button
+              title="Notifications"
+              className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full hover:bg-gray-100 shrink-0"
+            >
+              <Bell size={18} />
+            </button>
 
-        <Profile />
+            <div ref={usersRef} className="relative">
+              <button
+                type="button"
+                title="User Profile"
+                onClick={() => setShowUsers((prev) => !prev)}
+                className="flex cursor-pointer flex-row items-center justify-center rounded-full border border-gray-200 px-1 py-1 hover:bg-gray-100 md:space-x-1.5"
+              >
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-100">
+                  <User size={14} />
+                </div>
 
-        <div className="flex flex-row items-center justify-center gap-2">
+                <p className="hidden max-w-[64px] truncate text-xs font-medium text-gray-700 md:block">
+                  {currentUser?.username ?? "Select"}
+                </p>
+              </button>
+
+              {showUsers && (
+                <div className="absolute right-0 mt-2 w-44 rounded-lg border border-gray-200 bg-white py-1.5 shadow-xl z-20">
+                  <p className="px-3 py-1 text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
+                    Switch user
+                  </p>
+                  {isLoading && (
+                    <p className="px-3 py-1 text-xs text-gray-500">
+                      Loading...
+                    </p>
+                  )}
+                  {isError && (
+                    <p className="px-3 py-1 text-xs text-red-500">Error.</p>
+                  )}
+                  {!isLoading &&
+                    !isError &&
+                    users.map((user) => (
+                      <button
+                        key={user.id}
+                        type="button"
+                        onClick={() => handleUserSelect(user)}
+                        className={`w-full cursor-pointer px-3 py-1.5 text-left text-xs hover:bg-gray-100 transition-colors ${
+                          currentUser?.id === user.id
+                            ? "font-semibold bg-blue-50 text-blue-600"
+                            : "text-gray-700"
+                        }`}
+                      >
+                        {user.username}
+                      </button>
+                    ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="w-full flex-1 md:max-w-2xl md:mx-auto">
+          <SearchAndFilterBar
+            search={search}
+            onSearchChange={onSearchChange}
+            category={category}
+            onCategoryChange={onCategoryChange}
+            sort={sort}
+            onSortChange={onSortChange}
+            categories={categories}
+          />
+        </div>
+
+        <div className="hidden md:flex flex-row items-center gap-3">
+          <Profile />
+
           <button
             title="Notifications"
             className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full hover:bg-gray-100"
@@ -116,35 +174,24 @@ const Navbar = ({
               type="button"
               title="User Profile"
               onClick={() => setShowUsers((prev) => !prev)}
-              className="flex cursor-pointer flex-row items-center justify-center space-x-2 rounded-4xl px-3 py-1 hover:bg-gray-100"
+              className="flex cursor-pointer flex-row items-center justify-center space-x-2 rounded-full border border-gray-200 px-3 py-1.5 hover:bg-gray-100"
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200">
-                <User />
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gray-100">
+                <User size={16} />
               </div>
-
-              <p className="text-sm w-20">
+              <p className="text-sm max-w-[80px] truncate font-medium">
                 {currentUser?.username ?? "Select user"}
               </p>
             </button>
 
             {showUsers && (
-              <div className="absolute right-0 mt-2 w-44 rounded-lg border border-gray-200 bg-white py-2 shadow-lg">
-                <p className="px-4 py-2 text-xs font-medium text-gray-500">
+              <div className="absolute right-0 mt-2 w-48 rounded-lg border border-gray-200 bg-white py-2 shadow-xl z-20">
+                <p className="px-4 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
                   Switch user
                 </p>
-
                 {isLoading && (
-                  <p className="px-4 py-2 text-sm text-gray-500">
-                    Loading users...
-                  </p>
+                  <p className="px-4 py-2 text-sm text-gray-500">Loading...</p>
                 )}
-
-                {isError && (
-                  <p className="px-4 py-2 text-sm text-red-500">
-                    Failed to load users.
-                  </p>
-                )}
-
                 {!isLoading &&
                   !isError &&
                   users.map((user) => (
@@ -154,19 +201,13 @@ const Navbar = ({
                       onClick={() => handleUserSelect(user)}
                       className={`w-full cursor-pointer px-4 py-2 text-left text-sm hover:bg-gray-100 ${
                         currentUser?.id === user.id
-                          ? "font-medium bg-gray-50"
+                          ? "font-semibold bg-blue-50 text-blue-600"
                           : ""
                       }`}
                     >
                       {user.username}
                     </button>
                   ))}
-
-                {!isLoading && !isError && users.length === 0 && (
-                  <p className="px-4 py-2 text-sm text-gray-500">
-                    No users found.
-                  </p>
-                )}
               </div>
             )}
           </div>

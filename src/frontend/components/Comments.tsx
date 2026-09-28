@@ -150,8 +150,6 @@ const Comments = ({ blogId, currentUser }: CommentsProps) => {
   return (
     <section className="mt-10 w-full">
       <h2 className="text-xl font-semibold">Comments</h2>
-
-      {/* Write comment */}
       <div className="mt-5">
         <textarea
           value={comment}
@@ -179,8 +177,7 @@ const Comments = ({ blogId, currentUser }: CommentsProps) => {
         </div>
       </div>
 
-      {/* Filter and sort */}
-      <div className="mt-6 flex items-center justify-between border-b border-gray-200 pb-3">
+      <div className="mt-6 flex flex-col gap-3 border-b border-gray-200 pb-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm font-medium text-gray-600">
           {comments.length} comments
         </p>
@@ -189,7 +186,7 @@ const Comments = ({ blogId, currentUser }: CommentsProps) => {
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value as "all" | "mine")}
-            className="rounded-lg border border-gray-200 px-3 py-2 text-sm"
+            className="min-w-0 flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm sm:flex-none"
           >
             <option value="all">All comments</option>
             <option value="mine">My comments</option>
@@ -198,7 +195,7 @@ const Comments = ({ blogId, currentUser }: CommentsProps) => {
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value as "newest" | "oldest")}
-            className="rounded-lg border border-gray-200 px-3 py-2 text-sm"
+            className="min-w-0 flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm sm:flex-none"
           >
             <option value="newest">Newest</option>
             <option value="oldest">Oldest</option>
@@ -206,7 +203,6 @@ const Comments = ({ blogId, currentUser }: CommentsProps) => {
         </div>
       </div>
 
-      {/* Comments */}
       <div className="mt-5 flex flex-col gap-5">
         {isLoading && (
           <p className="text-sm text-gray-500">Loading comments...</p>

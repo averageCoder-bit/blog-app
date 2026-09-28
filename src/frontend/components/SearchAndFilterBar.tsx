@@ -22,6 +22,7 @@ const SearchAndFilterBar = ({
 }: SearchAndFilterBarProps) => {
   const [showFilters, setShowFilters] = useState(false);
   const filterRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -38,36 +39,33 @@ const SearchAndFilterBar = ({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
   return (
-    <div className="flex w-full items-center justify-center gap-4">
-      <div className="relative flex items-center">
+    <div className="flex w-full items-center justify-center gap-3 sm:gap-4">
+      <div className="relative flex min-w-0 flex-1 items-center sm:flex-none">
         <Search className="absolute left-3 text-gray-400" size={20} />
 
-        <div className="relative flex items-center">
-          <Search className="absolute left-3 text-gray-400" size={20} />
+        <input
+          type="search"
+          placeholder="Search..."
+          value={search}
+          onChange={(e) => onSearchChange(e.target.value)}
+          className="w-full rounded-3xl border border-gray-200 bg-gray-100 py-2 pl-10 pr-10 focus:outline-none sm:w-90"
+        />
 
-          <input
-            type="search"
-            placeholder="Search..."
-            value={search}
-            onChange={(e) => onSearchChange(e.target.value)}
-            className="w-90 rounded-3xl border border-gray-200 bg-gray-100 py-2 pl-10 pr-10 focus:outline-none"
-          />
-
-          {search && (
-            <button
-              type="button"
-              onClick={() => onSearchChange("")}
-              title="Clear search"
-              className="absolute right-3 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full text-gray-400 hover:bg-gray-200 hover:text-gray-600"
-            >
-              <X size={15} />
-            </button>
-          )}
-        </div>
+        {search && (
+          <button
+            type="button"
+            onClick={() => onSearchChange("")}
+            title="Clear search"
+            className="absolute right-3 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full text-gray-400 hover:bg-gray-200 hover:text-gray-600"
+          >
+            <X size={15} />
+          </button>
+        )}
       </div>
 
-      <div ref={filterRef} className="relative">
+      <div ref={filterRef} className="relative shrink-0">
         <button
           type="button"
           title="Filter and sort"
@@ -78,7 +76,7 @@ const SearchAndFilterBar = ({
         </button>
 
         {showFilters && (
-          <div className="absolute right-0 top-13 z-20 w-64 rounded-xl border border-gray-200 bg-white p-3 shadow-lg">
+          <div className="absolute right-0 top-13 z-20 w-64 max-w-[calc(100vw-2rem)] rounded-xl border border-gray-200 bg-white p-3 shadow-lg">
             <div>
               <p className="px-2 pb-2 text-xs font-medium text-gray-500">
                 Filter by category
@@ -115,6 +113,7 @@ const SearchAndFilterBar = ({
             </div>
 
             <div className="my-2 border-t border-gray-100" />
+
             <div>
               <p className="px-2 pb-2 text-xs font-medium text-gray-500">
                 Sort by
