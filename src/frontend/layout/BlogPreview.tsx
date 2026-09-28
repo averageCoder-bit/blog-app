@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import API_URL from "../api";
+import Comments from "../components/Comments";
 
 import type { BlogResponse } from "../validator/blogs";
 
@@ -68,24 +69,24 @@ const BlogPreview = () => {
         <p className="text-lg leading-relaxed text-gray-600">{blog.excerpt}</p>
       )}
       <div className="aspect-video w-full overflow-hidden rounded-2xl bg-gray-100">
-        <div className="aspect-video w-full overflow-hidden rounded-2xl bg-gray-100">
-          {blog.image_url ? (
-            <img
-              src={blog.image_url}
-              alt={blog.header}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <div className="flex h-full items-center justify-center text-sm text-gray-400">
-              No image available
-            </div>
-          )}
-        </div>
+        {blog.image_url ? (
+          <img
+            src={blog.image_url}
+            alt={blog.header}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <div className="flex h-full items-center justify-center text-sm text-gray-400">
+            No image available
+          </div>
+        )}
       </div>
+
       <div
         className="blog-content max-w-none"
         dangerouslySetInnerHTML={{ __html: blog.content }}
       />
+      <Comments />
     </article>
   );
 };
