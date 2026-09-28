@@ -34,7 +34,17 @@ def get_comments(
         .all()
     )
 
-    return comments
+    return [
+        {
+            "id": comment.id,
+            "content": comment.content,
+            "author_id": comment.author_id,
+            "author_username": comment.author.username,
+            "blog_id": comment.blog_id,
+            "created_at": comment.created_at,
+        }
+        for comment in comments
+    ]
 
 
 @router.post(
@@ -73,7 +83,14 @@ def create_comment(
     db.commit()
     db.refresh(new_comment)
 
-    return new_comment
+    return {
+        "id": new_comment.id,
+        "content": new_comment.content,
+        "author_id": new_comment.author_id,
+        "author_username": new_comment.author.username,
+        "blog_id": new_comment.blog_id,
+        "created_at": new_comment.created_at,
+    }
 
 
 @router.delete("/comments/{comment_id}")
