@@ -7,7 +7,7 @@ def setup_middleware(app: FastAPI):
         CORSMiddleware,
         allow_origins=[
             "http://localhost:5173",
-            "https://blog-app.kyleeva53.workers.dev/",
+            "https://blog-app.kyleeva53.workers.dev",
         ],
         allow_credentials=True,
         allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],

@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field
 
 
 class CommentCreate(BaseModel):
-    content: str = Field(min_length=1, max_length=1000)
+    content: str = Field(min_length=1, max_length=500)
     author_id: int
     blog_id: int
 
