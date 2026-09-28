@@ -28,7 +28,10 @@ const AppRoutes = ({ currentUser, search, category, sort }: AppRoutesProps) => {
         }
       />
       <Route path="/blogs" element={<UserBlogs currentUser={currentUser} />} />
-      <Route path="/blogs/:id" element={<BlogPreview />} />
+      <Route
+        path="/blogs/:id"
+        element={<BlogPreview currentUser={currentUser} />}
+      />
 
       <Route
         path="/blogs/create"

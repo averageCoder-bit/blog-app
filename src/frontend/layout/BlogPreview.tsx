@@ -12,7 +12,13 @@ const getBlog = async (id: number): Promise<BlogResponse> => {
   return response.data;
 };
 
-const BlogPreview = () => {
+import type { UserResponse } from "../validator/users";
+
+interface BlogPreviewProps {
+  currentUser: UserResponse | null;
+}
+
+const BlogPreview = ({ currentUser }: BlogPreviewProps) => {
   const { id } = useParams();
 
   const blogId = Number(id);
@@ -86,7 +92,7 @@ const BlogPreview = () => {
         className="blog-content max-w-none"
         dangerouslySetInnerHTML={{ __html: blog.content }}
       />
-      <Comments />
+      <Comments blogId={blog.id} currentUser={currentUser} />
     </article>
   );
 };

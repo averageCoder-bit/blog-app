@@ -10,9 +10,10 @@ export const commentCreateSchema = z.object({
 
 export const commentSchema = z.object({
   id: z.number(),
-  user: z.string(),
   content: z.string(),
-  createdAt: z.string(),
+  author_id: z.number(),
+  blog_id: z.number(),
+  created_at: z.string(),
 });
 
 export type CommentCreate = z.infer<typeof commentCreateSchema>;
