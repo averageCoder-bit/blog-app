@@ -227,7 +227,7 @@ const Comments = ({ blogId, currentUser }: CommentsProps) => {
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium">User #{comment.author_id}</p>
+                <p className="font-medium">{comment.author_username}</p>
 
                 <p className="text-xs text-gray-400">
                   {new Date(comment.created_at).toLocaleDateString("en-US", {

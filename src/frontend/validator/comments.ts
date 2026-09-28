@@ -12,6 +12,7 @@ export const commentSchema = z.object({
   id: z.number(),
   content: z.string(),
   author_id: z.number(),
+  author_username: z.string(),
   blog_id: z.number(),
   created_at: z.string(),
 });
