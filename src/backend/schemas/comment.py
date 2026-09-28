@@ -12,6 +12,7 @@ class CommentResponse(BaseModel):
     id: int
     content: str
     author_id: int
+    author_username: str
     blog_id: int
     created_at: datetime
 
