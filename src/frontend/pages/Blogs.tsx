@@ -10,11 +10,15 @@ import Pagination from "../components/Pagination";
 import BlogGrid from "../layout/BlogGrid";
 import type { BlogResponse } from "../validator/blogs";
 
+type SortField = "date" | "title" | "likes" | "comments";
+type SortOrder = "asc" | "desc";
+
 interface BlogsProps {
   search: string;
   currentUser: UserResponse | null;
   category: string;
-  sort: "newest" | "oldest" | "title";
+  sort: SortField;
+  order: SortOrder;
 }
 
 const getBlogs = async (): Promise<BlogResponse[]> => {
@@ -22,7 +26,7 @@ const getBlogs = async (): Promise<BlogResponse[]> => {
   return response.data;
 };
 
-const Blogs = ({ currentUser, search, category, sort }: BlogsProps) => {
+const Blogs = ({ search, currentUser, category, sort, order }: BlogsProps) => {
   useEffect(() => {
     document.title = "Blogs | Chronicle";
   }, []);
@@ -73,19 +77,26 @@ const Blogs = ({ currentUser, search, category, sort }: BlogsProps) => {
       return matchesSearch && matchesCategory;
     })
     .sort((a, b) => {
-      if (sort === "newest") {
-        return (
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        );
+      let comparison = 0;
+
+      if (sort === "date") {
+        comparison =
+          new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
       }
 
-      if (sort === "oldest") {
-        return (
-          new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-        );
+      if (sort === "title") {
+        comparison = a.header.localeCompare(b.header);
       }
 
-      return a.header.localeCompare(b.header);
+      if (sort === "likes") {
+        comparison = a.like_count - b.like_count;
+      }
+
+      if (sort === "comments") {
+        comparison = a.comment_count - b.comment_count;
+      }
+
+      return order === "asc" ? comparison : -comparison;
     });
 
   const totalPages = Math.ceil(filteredBlogs.length / blogsPerPage);
@@ -117,7 +128,7 @@ const Blogs = ({ currentUser, search, category, sort }: BlogsProps) => {
         </div>
       ) : (
         <>
-          <BlogGrid blogs={currentBlogs} />
+          <BlogGrid blogs={currentBlogs} currentUser={currentUser} />
 
           <Pagination
             currentPage={currentPage}

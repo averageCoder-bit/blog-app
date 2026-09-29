@@ -1,62 +1,29 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { Trash2 } from "lucide-react";
-
+import Pagination from "./Pagination";
 import API_URL from "../api";
 import { commentCreateSchema } from "../validator/comments";
 import type { Comment } from "../validator/comments";
 import type { UserResponse } from "../validator/users";
+
+import { getComments, createComment, deleteComment } from "../api/comments";
 
 interface CommentsProps {
   blogId: number;
   currentUser: UserResponse | null;
 }
 
-const getComments = async (blogId: number): Promise<Comment[]> => {
-  const response = await axios.get(`${API_URL}/blogs/${blogId}/comments`);
-  return response.data;
-};
-
-const createComment = async ({
-  blogId,
-  authorId,
-  content,
-}: {
-  blogId: number;
-  authorId: number;
-  content: string;
-}) => {
-  const response = await axios.post(`${API_URL}/blogs/${blogId}/comments`, {
-    content,
-    author_id: authorId,
-    blog_id: blogId,
-  });
-
-  return response.data;
-};
-
-const deleteComment = async ({
-  commentId,
-  userId,
-}: {
-  commentId: number;
-  userId: number;
-}) => {
-  const response = await axios.delete(
-    `${API_URL}/comments/${commentId}?user_id=${userId}`,
-  );
-
-  return response.data;
-};
-
 const Comments = ({ blogId, currentUser }: CommentsProps) => {
   const queryClient = useQueryClient();
-
+  const [page, setPage] = useState(1);
   const [comment, setComment] = useState("");
   const [filter, setFilter] = useState<"all" | "mine">("all");
   const [sort, setSort] = useState<"newest" | "oldest">("newest");
-
+  useEffect(() => {
+    setPage(1);
+  }, [filter, sort]);
   const {
     data: comments = [],
     isLoading,
@@ -135,17 +102,26 @@ const Comments = ({ blogId, currentUser }: CommentsProps) => {
       }
 
       return first - second;
-    })
-    .sort((a, b) => {
-      const aMine = a.author_id === currentUser?.id;
-      const bMine = b.author_id === currentUser?.id;
-
-      if (aMine === bMine) {
-        return 0;
-      }
-
-      return aMine ? -1 : 1;
     });
+  // .sort((a, b) => {
+  //   const aMine = a.author_id === currentUser?.id;
+  //   const bMine = b.author_id === currentUser?.id;
+
+  //   if (aMine === bMine) {
+  //     return 0;
+  //   }
+
+  //   return aMine ? -1 : 1;
+  // });
+
+  const COMMENTS_PER_PAGE = 7;
+
+  const totalPages = Math.ceil(filteredComments.length / COMMENTS_PER_PAGE);
+
+  const paginatedComments = filteredComments.slice(
+    (page - 1) * COMMENTS_PER_PAGE,
+    page * COMMENTS_PER_PAGE,
+  );
 
   return (
     <section className="mt-10 w-full">
@@ -216,7 +192,7 @@ const Comments = ({ blogId, currentUser }: CommentsProps) => {
           <p className="text-sm text-gray-500">No comments yet.</p>
         )}
 
-        {filteredComments.map((comment) => (
+        {paginatedComments.map((comment) => (
           <article
             key={comment.id}
             className="rounded-xl border border-gray-200 p-4"
@@ -251,6 +227,11 @@ const Comments = ({ blogId, currentUser }: CommentsProps) => {
           </article>
         ))}
       </div>
+      <Pagination
+        currentPage={page}
+        totalPages={totalPages}
+        onPageChange={setPage}
+      />
     </section>
   );
 };

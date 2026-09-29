@@ -4,11 +4,15 @@ import AppNavbar from "./frontend/components/AppNavbar";
 import type { UserResponse } from "./frontend/validator/users";
 import { useState } from "react";
 
+type SortField = "date" | "title" | "likes" | "comments";
+type SortOrder = "asc" | "desc";
+
 function App() {
   const [currentUser, setCurrentUser] = useState<UserResponse | null>(null);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
-  const [sort, setSort] = useState<"newest" | "oldest" | "title">("newest");
+  const [sort, setSort] = useState<SortField>("date");
+  const [order, setOrder] = useState<SortOrder>("desc");
 
   return (
     <>
@@ -21,6 +25,8 @@ function App() {
         onCategoryChange={setCategory}
         sort={sort}
         onSortChange={setSort}
+        order={order}
+        onOrderChange={setOrder}
       />
 
       <AppNavbar />
@@ -31,6 +37,7 @@ function App() {
           search={search}
           category={category}
           sort={sort}
+          order={order}
         />
       </main>
     </>

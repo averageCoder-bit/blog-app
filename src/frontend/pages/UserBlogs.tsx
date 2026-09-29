@@ -1,22 +1,14 @@
-import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { SquarePen, Pen } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Pagination from "../components/Pagination";
 import BlogGrid from "../layout/BlogGrid";
-import type { BlogResponse } from "../validator/blogs";
 import type { UserResponse } from "../validator/users";
-import API_URL from "../api";
-
+import { getUserBlogs } from "../api/blogs";
 interface UserBlogsProps {
   currentUser: UserResponse | null;
 }
-
-const getUserBlogs = async (userId: number): Promise<BlogResponse[]> => {
-  const response = await axios.get(`${API_URL}/users/${userId}/blogs`);
-  return response.data;
-};
 
 const UserBlogs = ({ currentUser }: UserBlogsProps) => {
   const navigate = useNavigate();
@@ -81,7 +73,7 @@ const UserBlogs = ({ currentUser }: UserBlogsProps) => {
         </div>
       ) : (
         <>
-          <BlogGrid blogs={currentBlogs} />
+          <BlogGrid blogs={currentBlogs} currentUser={currentUser} />
 
           <Pagination
             currentPage={currentPage}

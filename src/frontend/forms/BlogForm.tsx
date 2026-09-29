@@ -5,6 +5,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { UserResponse } from "../validator/users";
 import axios from "axios";
 import API_URL from "../api";
+import { createBlog } from "../api/blogs";
 import {
   Bold,
   Italic,
@@ -72,37 +73,15 @@ const BlogForm = ({ currentUser }: BlogFormProps) => {
     setHeader(e.target.value);
   };
 
-  const createBlog = async (blogCreateData: BlogCreate) => {
-    const formData = new FormData();
-
-    formData.append("header", blogCreateData.header);
-    formData.append("content", blogCreateData.content);
-    formData.append("excerpt", blogCreateData.excerpt ?? "");
-    formData.append("category", blogCreateData.category);
-
-    if (blogCreateData.image) {
-      formData.append("image", blogCreateData.image);
-    }
-
-    if (!currentUser) {
-      return;
-    }
-
-    const res = await axios.post(
-      `${API_URL}/users/${currentUser.id}/blogs`,
-      formData,
-    );
-
-    return res.data;
-  };
-
   const mutation = useMutation({
-    mutationFn: createBlog,
+    mutationFn: ({ userId, blog }: { userId: number; blog: BlogCreate }) =>
+      createBlog({ userId, blog }),
 
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["blogs"],
       });
+
       setHeader("");
       setExcerpt("");
       setCategory("");
@@ -110,6 +89,7 @@ const BlogForm = ({ currentUser }: BlogFormProps) => {
       setImage(null);
       setPreview(null);
     },
+
     onError: (error) => {
       console.error("Failed to create blog:", error);
     },
@@ -118,6 +98,10 @@ const BlogForm = ({ currentUser }: BlogFormProps) => {
   const handleBlogSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    if (!currentUser) {
+      return;
+    }
+
     const blogCreateData: BlogCreate = {
       header,
       content: editor.getHTML(),
@@ -125,7 +109,11 @@ const BlogForm = ({ currentUser }: BlogFormProps) => {
       category,
       image: image ?? undefined,
     };
-    mutation.mutate(blogCreateData);
+
+    mutation.mutate({
+      userId: currentUser.id,
+      blog: blogCreateData,
+    });
   };
   const editor = useEditor({
     extensions: [StarterKit],

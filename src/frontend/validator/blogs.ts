@@ -36,6 +36,9 @@ export const BlogResponseSchema = z.object({
   created_at: z.string(),
   updated_at: z.string(),
   image_url: z.string().nullable(),
+  like_count: z.number(),
+  comment_count: z.number(),
+  liked: z.boolean(),
 });
 
 export type BlogResponse = z.infer<typeof BlogResponseSchema>;

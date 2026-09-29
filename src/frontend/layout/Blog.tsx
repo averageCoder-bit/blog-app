@@ -1,12 +1,35 @@
 import { Heart, Eye, MessageSquare } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { BlogResponse } from "../validator/blogs";
+import { useMutation } from "@tanstack/react-query";
+import { likeBlog, unlikeBlog } from "../api/likes";
+import { useState } from "react";
 
 interface BlogProps {
   blog: BlogResponse;
+  currentUserId: number | null;
 }
 
-const Blog = ({ blog }: BlogProps) => {
+const Blog = ({ blog, currentUserId }: BlogProps) => {
+  const [liked, setLiked] = useState(blog.liked);
+  const [likeCount, setLikeCount] = useState(blog.like_count);
+  const likeMutation = useMutation({
+    mutationFn: () => {
+      if (currentUserId === null) {
+        throw new Error("You must be logged in to like a blog.");
+      }
+
+      return liked
+        ? unlikeBlog(blog.id, currentUserId)
+        : likeBlog(blog.id, currentUserId);
+    },
+    onSuccess: (data) => {
+      console.log("Like response:", data);
+
+      setLiked(data.liked);
+      setLikeCount(data.like_count);
+    },
+  });
   const navigate = useNavigate();
   return (
     <div
@@ -56,14 +79,26 @@ const Blog = ({ blog }: BlogProps) => {
             <p className="text-xs">0</p>
           </div>
 
-          <div className="flex flex-row items-center gap-2">
-            <Heart size={15} />
-            <p className="text-xs">0</p>
-          </div>
+          <button
+            type="button"
+            disabled={likeMutation.isPending || currentUserId === null}
+            onClick={(e) => {
+              e.stopPropagation();
+              likeMutation.mutate();
+            }}
+            className="flex cursor-pointer flex-row items-center gap-2 disabled:cursor-not-allowed"
+          >
+            <Heart
+              size={15}
+              fill={liked ? "currentColor" : "none"}
+              className={liked ? "text-red-500" : ""}
+            />
+            <p className="text-xs">{likeCount}</p>
+          </button>
 
           <div className="flex flex-row items-center gap-2">
             <MessageSquare size={15} />
-            <p className="text-xs">0</p>
+            <p className="text-xs">{blog.comment_count}</p>
           </div>
         </div>
 

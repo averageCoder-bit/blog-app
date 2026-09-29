@@ -8,6 +8,11 @@ import Profile from "../components/Profile";
 import SearchAndFilterBar from "../components/SearchAndFilterBar";
 import type { UserResponse } from "../validator/users";
 import API_URL from "../api";
+import { getUsers } from "../api/users";
+import { getBlogs } from "../api/blogs";
+
+type SortField = "date" | "title" | "likes" | "comments";
+type SortOrder = "asc" | "desc";
 
 interface NavbarProps {
   currentUser: UserResponse | null;
@@ -16,19 +21,11 @@ interface NavbarProps {
   onSearchChange: (value: string) => void;
   category: string;
   onCategoryChange: (value: string) => void;
-  sort: "newest" | "oldest" | "title";
-  onSortChange: (value: "newest" | "oldest" | "title") => void;
+  sort: SortField;
+  onSortChange: (value: SortField) => void;
+  order: SortOrder;
+  onOrderChange: (value: SortOrder) => void;
 }
-
-const getUsers = async (): Promise<UserResponse[]> => {
-  const response = await axios.get(`${API_URL}/users`);
-  return response.data;
-};
-
-const getBlogs = async (): Promise<BlogResponse[]> => {
-  const response = await axios.get(`${API_URL}/blogs`);
-  return response.data;
-};
 
 const Navbar = ({
   currentUser,
@@ -39,6 +36,8 @@ const Navbar = ({
   onCategoryChange,
   sort,
   onSortChange,
+  order,
+  onOrderChange,
 }: NavbarProps) => {
   const [showUsers, setShowUsers] = useState(false);
   const usersRef = useRef<HTMLDivElement>(null);
@@ -155,6 +154,8 @@ const Navbar = ({
             onCategoryChange={onCategoryChange}
             sort={sort}
             onSortChange={onSortChange}
+            order={order}
+            onOrderChange={onOrderChange}
             categories={categories}
           />
         </div>

@@ -6,14 +6,24 @@ import type { UserResponse } from "../validator/users";
 import UserBlogs from "../pages/UserBlogs";
 import BlogPreview from "../layout/BlogPreview";
 
+type SortField = "date" | "title" | "likes" | "comments";
+type SortOrder = "asc" | "desc";
+
 interface AppRoutesProps {
   currentUser: UserResponse | null;
   search: string;
   category: string;
-  sort: "newest" | "oldest" | "title";
+  sort: SortField;
+  order: SortOrder;
 }
 
-const AppRoutes = ({ currentUser, search, category, sort }: AppRoutesProps) => {
+const AppRoutes = ({
+  currentUser,
+  search,
+  category,
+  sort,
+  order,
+}: AppRoutesProps) => {
   return (
     <Routes>
       <Route
@@ -24,10 +34,13 @@ const AppRoutes = ({ currentUser, search, category, sort }: AppRoutesProps) => {
             search={search}
             category={category}
             sort={sort}
+            order={order}
           />
         }
       />
+
       <Route path="/blogs" element={<UserBlogs currentUser={currentUser} />} />
+
       <Route
         path="/blogs/:id"
         element={<BlogPreview currentUser={currentUser} />}

@@ -1,13 +1,18 @@
 import { Search, Settings2, Check, X } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 
+type SortField = "date" | "title" | "likes" | "comments";
+type SortOrder = "asc" | "desc";
+
 type SearchAndFilterBarProps = {
   search: string;
   onSearchChange: (value: string) => void;
   category: string;
   onCategoryChange: (value: string) => void;
-  sort: "newest" | "oldest" | "title";
-  onSortChange: (value: "newest" | "oldest" | "title") => void;
+  sort: SortField;
+  onSortChange: (value: SortField) => void;
+  order: SortOrder;
+  onOrderChange: (value: SortOrder) => void;
   categories: string[];
 };
 
@@ -18,6 +23,8 @@ const SearchAndFilterBar = ({
   onCategoryChange,
   sort,
   onSortChange,
+  order,
+  onOrderChange,
   categories = [],
 }: SearchAndFilterBarProps) => {
   const [showFilters, setShowFilters] = useState(false);
@@ -121,41 +128,69 @@ const SearchAndFilterBar = ({
 
               <button
                 type="button"
-                onClick={() => {
-                  onSortChange("newest");
-                  setShowFilters(false);
-                }}
+                onClick={() => onSortChange("date")}
                 className="flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-left text-sm hover:bg-gray-100"
               >
-                <span>Newest</span>
+                <span>Date</span>
 
-                {sort === "newest" && <Check size={16} />}
+                {sort === "date" && <Check size={16} />}
               </button>
 
               <button
                 type="button"
-                onClick={() => {
-                  onSortChange("oldest");
-                  setShowFilters(false);
-                }}
-                className="flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-left text-sm hover:bg-gray-100"
-              >
-                <span>Oldest</span>
-
-                {sort === "oldest" && <Check size={16} />}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  onSortChange("title");
-                  setShowFilters(false);
-                }}
+                onClick={() => onSortChange("title")}
                 className="flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-left text-sm hover:bg-gray-100"
               >
                 <span>Title</span>
 
                 {sort === "title" && <Check size={16} />}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => onSortChange("likes")}
+                className="flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-left text-sm hover:bg-gray-100"
+              >
+                <span>Likes</span>
+
+                {sort === "likes" && <Check size={16} />}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => onSortChange("comments")}
+                className="flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-left text-sm hover:bg-gray-100"
+              >
+                <span>Comments</span>
+
+                {sort === "comments" && <Check size={16} />}
+              </button>
+            </div>
+            <div className="my-2 border-t border-gray-100" />
+
+            <div>
+              <p className="px-2 pb-2 text-xs font-medium text-gray-500">
+                Order
+              </p>
+
+              <button
+                type="button"
+                onClick={() => onOrderChange("asc")}
+                className="flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-left text-sm hover:bg-gray-100"
+              >
+                <span>Ascending</span>
+
+                {order === "asc" && <Check size={16} />}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => onOrderChange("desc")}
+                className="flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-left text-sm hover:bg-gray-100"
+              >
+                <span>Descending</span>
+
+                {order === "desc" && <Check size={16} />}
               </button>
             </div>
           </div>

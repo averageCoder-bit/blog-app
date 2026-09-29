@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 interface PaginationProps {
   currentPage: number;
   totalPages: number;
@@ -9,45 +10,68 @@ const Pagination = ({
   totalPages,
   onPageChange,
 }: PaginationProps) => {
+  useEffect(() => {
+    setPageInput(String(currentPage));
+  }, [currentPage]);
+  const [pageInput, setPageInput] = useState(String(currentPage));
+
   if (totalPages <= 1) {
     return null;
   }
 
+  const handlePageChange = () => {
+    const page = Number(pageInput);
+
+    if (!Number.isInteger(page)) {
+      setPageInput(String(currentPage));
+      return;
+    }
+
+    if (page < 1 || page > totalPages) {
+      setPageInput(String(currentPage));
+      return;
+    }
+
+    onPageChange(page);
+  };
+
   return (
-    <div className="flex items-center justify-center gap-2 w-full py-10">
+    <div className="flex w-full items-center justify-center gap-3 py-10">
       <button
         type="button"
         disabled={currentPage === 1}
         onClick={() => onPageChange(currentPage - 1)}
-        className="rounded-lg border px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50 hover:cursor-pointer"
+        className="rounded-lg border px-3 py-2 text-sm hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
       >
         Previous
       </button>
 
-      {Array.from({ length: totalPages }, (_, index) => {
-        const page = index + 1;
+      <div className="flex items-center gap-2 text-sm">
+        <span>Showing</span>
 
-        return (
-          <button
-            key={page}
-            type="button"
-            onClick={() => onPageChange(page)}
-            className={`h-9 w-9 rounded-lg text-sm hover:cursor-pointer ${
-              currentPage === page
-                ? "bg-black text-white"
-                : "border hover:bg-gray-100"
-            }`}
-          >
-            {page}
-          </button>
-        );
-      })}
+        <input
+          type="number"
+          min={1}
+          max={totalPages}
+          value={pageInput}
+          onChange={(e) => setPageInput(e.target.value)}
+          onBlur={handlePageChange}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handlePageChange();
+            }
+          }}
+          className="h-9 w-14 rounded-lg border px-2 text-center outline-none focus:border-gray-400"
+        />
+
+        <span>of {totalPages}</span>
+      </div>
 
       <button
         type="button"
         disabled={currentPage === totalPages}
         onClick={() => onPageChange(currentPage + 1)}
-        className="rounded-lg border px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50 hover:cursor-pointer"
+        className="rounded-lg border px-3 py-2 text-sm hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
       >
         Next
       </button>
