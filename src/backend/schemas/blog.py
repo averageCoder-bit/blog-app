@@ -1,6 +1,4 @@
 from datetime import datetime
-from pydantic import BaseModel, Field, field_validator
-
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -22,7 +20,9 @@ class BlogCreate(BaseModel):
 
     @field_validator("header", "content", "excerpt")
     @classmethod
-    def validate_english_letters(cls, value: str | None) -> str | None:
+    def validate_english_letters(
+        cls, value: str | None
+    ) -> str | None:
         if value is not None and not contains_only_english_letters(value):
             raise ValueError("Only English letters are allowed.")
 
