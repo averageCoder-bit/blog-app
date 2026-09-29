@@ -4,7 +4,7 @@ import { Trash2 } from "lucide-react";
 import Pagination from "./Pagination";
 import { commentCreateSchema } from "../validator/comments";
 import type { UserResponse } from "../validator/users";
-
+import { filterEnglishText } from "../validator/utils";
 import { getComments, createComment, deleteComment } from "../api/comments";
 
 interface CommentsProps {
@@ -126,7 +126,7 @@ const Comments = ({ blogId, currentUser }: CommentsProps) => {
       <div className="mt-5">
         <textarea
           value={comment}
-          onChange={(e) => setComment(e.target.value)}
+          onChange={(e) => setComment(filterEnglishText(e.target.value))}
           placeholder={
             currentUser ? "Write a comment..." : "Select a user to comment..."
           }

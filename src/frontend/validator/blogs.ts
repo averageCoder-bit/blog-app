@@ -1,14 +1,35 @@
 import { z } from "zod";
 
+const containsOnlyEnglishLetters = (value: string) => {
+  for (const char of value) {
+    if (/\p{L}/u.test(char) && !/[A-Za-z]/.test(char)) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
 export const BlogCreateSchema = z.object({
   header: z
     .string()
     .min(1, "Header is required")
-    .max(150, "Header must be 150 characters or less"),
+    .max(150, "Header must be 150 characters or less")
+    .refine(containsOnlyEnglishLetters, "Only English letters are allowed."),
 
-  content: z.string().min(1, "Content is required"),
+  content: z
+    .string()
+    .min(1, "Content is required")
+    .refine(
+      (value) => value.trim().split(/\s+/).filter(Boolean).length <= 5000,
+      "Content must be 5000 words or less",
+    )
+    .refine(containsOnlyEnglishLetters, "Only English letters are allowed."),
 
-  excerpt: z.string().max(300, "Excerpt must be 300 characters or less"),
+  excerpt: z
+    .string()
+    .max(300, "Excerpt must be 300 characters or less")
+    .refine(containsOnlyEnglishLetters, "Only English letters are allowed."),
 
   image: z
     .instanceof(File)

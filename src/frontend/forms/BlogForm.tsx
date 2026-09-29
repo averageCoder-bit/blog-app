@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { UserResponse } from "../validator/users";
 import { createBlog } from "../api/blogs";
+import { filterEnglishText } from "../validator/utils";
 import {
   Bold,
   Italic,
@@ -32,7 +33,6 @@ const BlogForm = ({ currentUser }: BlogFormProps) => {
     document.title = "Create Post | Chronicle";
   }, []);
   const [image, setImage] = useState<File | null>(null);
-  // const [error, setError] = useState<string>("");
   const [category, setCategory] = useState<string>("");
   const [excerpt, setExcerpt] = useState<string>("");
   const [header, setHeader] = useState<string>("");
@@ -68,7 +68,7 @@ const BlogForm = ({ currentUser }: BlogFormProps) => {
   };
 
   const handleHeaderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setHeader(e.target.value);
+    setHeader(filterEnglishText(e.target.value));
   };
 
   const mutation = useMutation({
@@ -113,19 +113,64 @@ const BlogForm = ({ currentUser }: BlogFormProps) => {
       blog: blogCreateData,
     });
   };
+  const [wordCount, setWordCount] = useState(0);
+
+  const MAX_WORDS = 5000;
+
+  const countWords = (text: string) =>
+    text.trim() ? text.trim().split(/\s+/).filter(Boolean).length : 0;
+
   const editor = useEditor({
     extensions: [StarterKit],
     content: JSON.parse(
       localStorage.getItem("blog-draft") ||
         '{"type":"doc","content":[{"type":"paragraph"}]}',
     ),
-    onUpdate: ({ editor }) => {
-      localStorage.setItem("blog-draft", JSON.stringify(editor.getJSON()));
-    },
+
     editorProps: {
       attributes: {
         class: "min-h-64 w-full p-4 focus:outline-none",
       },
+
+      handleTextInput: (view, from, to, text) => {
+        const filteredText = filterEnglishText(text);
+
+        if (filteredText === text) {
+          return false;
+        }
+
+        if (filteredText) {
+          view.dispatch(view.state.tr.insertText(filteredText, from, to));
+        }
+
+        return true;
+      },
+
+      handlePaste: (view, event) => {
+        const text = event.clipboardData?.getData("text/plain") ?? "";
+        const filteredText = filterEnglishText(text);
+
+        if (filteredText === text) {
+          return false;
+        }
+
+        if (filteredText) {
+          const { from, to } = view.state.selection;
+
+          view.dispatch(view.state.tr.insertText(filteredText, from, to));
+        }
+
+        return true;
+      },
+    },
+
+    onCreate: ({ editor }) => {
+      setWordCount(countWords(editor.getText()));
+    },
+
+    onUpdate: ({ editor }) => {
+      localStorage.setItem("blog-draft", JSON.stringify(editor.getJSON()));
+      setWordCount(countWords(editor.getText()));
     },
   });
 
@@ -135,7 +180,8 @@ const BlogForm = ({ currentUser }: BlogFormProps) => {
     category.trim().length > 0 &&
     excerpt.trim().length > 0 &&
     excerpt.length <= 300 &&
-    editor.getText().trim().length > 0;
+    editor.getText().trim().length > 0 &&
+    wordCount <= MAX_WORDS;
   if (!editor) {
     return null;
   }
@@ -171,7 +217,7 @@ const BlogForm = ({ currentUser }: BlogFormProps) => {
         <textarea
           id="excerpt"
           value={excerpt}
-          onChange={(e) => setExcerpt(e.target.value)}
+          onChange={(e) => setExcerpt(filterEnglishText(e.target.value))}
           placeholder="Write a short description of your blog..."
           maxLength={300}
           rows={3}
@@ -355,6 +401,13 @@ const BlogForm = ({ currentUser }: BlogFormProps) => {
             "
           />
         </div>
+        <p
+          className={`px-1 pt-1 text-xs ${
+            wordCount > MAX_WORDS ? "text-red-500" : "text-gray-400"
+          }`}
+        >
+          {wordCount.toLocaleString()} / {MAX_WORDS.toLocaleString()} words
+        </p>
       </div>
       <div className="flex flex-col gap-2">
         <label className="font-medium">Upload header image</label>
