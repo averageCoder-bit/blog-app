@@ -37,18 +37,23 @@ const Navbar = ({
   onOrderChange,
 }: NavbarProps) => {
   const [showUsers, setShowUsers] = useState(false);
-  const usersRef = useRef<HTMLDivElement>(null);
+  const mobileUsersRef = useRef<HTMLDivElement>(null);
+  const desktopUsersRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+
       if (
-        usersRef.current &&
-        !usersRef.current.contains(event.target as Node)
+        !mobileUsersRef.current?.contains(target) &&
+        !desktopUsersRef.current?.contains(target)
       ) {
         setShowUsers(false);
       }
     };
+
     document.addEventListener("mousedown", handleClickOutside);
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -84,7 +89,6 @@ const Navbar = ({
           <Logo />
           <div className="flex flex-row items-center gap-2 md:hidden">
             <Profile />
-
             <button
               title="Notifications"
               className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full hover:bg-gray-100 shrink-0"
@@ -92,7 +96,7 @@ const Navbar = ({
               <Bell size={18} />
             </button>
 
-            <div ref={usersRef} className="relative">
+            <div ref={mobileUsersRef} className="relative">
               <button
                 type="button"
                 title="User Profile"
@@ -159,7 +163,6 @@ const Navbar = ({
 
         <div className="hidden md:flex flex-row items-center gap-3">
           <Profile />
-
           <button
             title="Notifications"
             className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full hover:bg-gray-100"
@@ -167,7 +170,7 @@ const Navbar = ({
             <Bell size={20} />
           </button>
 
-          <div ref={usersRef} className="relative">
+          <div ref={desktopUsersRef} className="relative">
             <button
               type="button"
               title="User Profile"
