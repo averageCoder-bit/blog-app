@@ -68,7 +68,9 @@ const BlogForm = ({ currentUser }: BlogFormProps) => {
   };
 
   const handleHeaderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setHeader(filterEnglishText(e.target.value));
+    const filteredText = filterEnglishText(e.target.value);
+
+    setHeader(filteredText.trim() === "" ? "" : filteredText);
   };
 
   const mutation = useMutation({
@@ -154,7 +156,7 @@ const BlogForm = ({ currentUser }: BlogFormProps) => {
           return false;
         }
 
-        if (filteredText) {
+        if (filteredText.trim()) {
           const { from, to } = view.state.selection;
 
           view.dispatch(view.state.tr.insertText(filteredText, from, to));
@@ -200,6 +202,8 @@ const BlogForm = ({ currentUser }: BlogFormProps) => {
         <input
           onChange={handleHeaderChange}
           type="text"
+          value={header}
+          placeholder="Input the header of your blog"
           maxLength={150}
           className="rounded-lg border border-gray-200 bg-gray-100 p-2 focus:outline-none"
           required
@@ -217,7 +221,10 @@ const BlogForm = ({ currentUser }: BlogFormProps) => {
         <textarea
           id="excerpt"
           value={excerpt}
-          onChange={(e) => setExcerpt(filterEnglishText(e.target.value))}
+          onChange={(e) => {
+            const filteredText = filterEnglishText(e.target.value);
+            setExcerpt(filteredText.trim() === "" ? "" : filteredText);
+          }}
           placeholder="Write a short description of your blog..."
           maxLength={300}
           rows={3}
