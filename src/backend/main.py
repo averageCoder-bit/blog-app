@@ -7,6 +7,7 @@ from middleware import setup_middleware
 from routes.blog import router as blogs_router
 from routes.users import router as users_router
 from routes.comments import router as comments_router
+from routes.likes import router as likes_router
 
 
 UPLOAD_DIR = Path("uploads/blogs")
@@ -18,6 +19,7 @@ setup_middleware(app)
 app.include_router(blogs_router)
 app.include_router(users_router)
 app.include_router(comments_router)
+app.include_router(likes_router)
 
 app.mount(
     "/uploads",

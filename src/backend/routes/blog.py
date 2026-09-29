@@ -8,10 +8,13 @@ from fastapi import (
 )
 from services.r2 import upload_blog_image, get_blog_image_url
 from schemas.blog import BlogCreate, BlogResponse
+
+from sqlalchemy import func
 from db.database import get_db
 from sqlalchemy.orm import Session
 from models.blog import Blog
-
+from models.like import Like
+from models.comment import Comment
 
 
 ALLOWED_TYPES = {
@@ -30,13 +33,26 @@ def get_blog(
     id: int,
     db: Session = Depends(get_db),
 ):
-    blog = db.get(Blog, id)
+    result = (
+        db.query(
+            Blog,
+            func.count(func.distinct(Like.id)).label("like_count"),
+            func.count(func.distinct(Comment.id)).label("comment_count"),
+        )
+        .outerjoin(Like, Like.blog_id == Blog.id)
+        .outerjoin(Comment, Comment.blog_id == Blog.id)
+        .filter(Blog.id == id)
+        .group_by(Blog.id)
+        .first()
+    )
 
-    if not blog:
+    if not result:
         raise HTTPException(
             status_code=404,
             detail="Blog not found",
         )
+
+    blog, like_count, comment_count = result
 
     return {
         "id": blog.id,
@@ -49,6 +65,8 @@ def get_blog(
         "created_at": blog.created_at,
         "updated_at": blog.updated_at,
         "image_url": get_blog_image_url(blog.image_key),
+        "like_count": like_count,
+        "comment_count": comment_count,
     }
 
 
@@ -56,7 +74,17 @@ def get_blog(
 def get_blogs(
     db: Session = Depends(get_db),
 ):
-    blogs = db.query(Blog).all()
+    results = (
+        db.query(
+            Blog,
+            func.count(func.distinct(Like.id)).label("like_count"),
+            func.count(func.distinct(Comment.id)).label("comment_count"),
+        )
+        .outerjoin(Like, Like.blog_id == Blog.id)
+        .outerjoin(Comment, Comment.blog_id == Blog.id)
+        .group_by(Blog.id)
+        .all()
+    )
 
     return [
         {
@@ -70,8 +98,10 @@ def get_blogs(
             "created_at": blog.created_at,
             "updated_at": blog.updated_at,
             "image_url": get_blog_image_url(blog.image_key),
+            "like_count": like_count,
+            "comment_count": comment_count,
         }
-        for blog in blogs
+        for blog, like_count, comment_count in results
     ]
 
 
@@ -150,6 +180,8 @@ async def create_blog(
         "created_at": new_blog.created_at,
         "updated_at": new_blog.updated_at,
         "image_url": get_blog_image_url(new_blog.image_key),
+        "like_count": 0,
+        "comment_count": 0,
     }
 
 @router.get("/users/{user_id}/blogs", response_model=list[BlogResponse])
@@ -157,9 +189,17 @@ def get_user_blogs(
     user_id: int,
     db: Session = Depends(get_db),
 ):
-    blogs = (
-        db.query(Blog)
+
+    results = (
+        db.query(
+            Blog,
+            func.count(func.distinct(Like.id)).label("like_count"),
+            func.count(func.distinct(Comment.id)).label("comment_count"),
+        )
+        .outerjoin(Like, Like.blog_id == Blog.id)
+        .outerjoin(Comment, Comment.blog_id == Blog.id)
         .filter(Blog.author_id == user_id)
+        .group_by(Blog.id)
         .all()
     )
 
@@ -175,6 +215,8 @@ def get_user_blogs(
             "created_at": blog.created_at,
             "updated_at": blog.updated_at,
             "image_url": get_blog_image_url(blog.image_key),
+            "like_count": like_count,
+            "comment_count": comment_count,
         }
-        for blog in blogs
+        for blog, like_count, comment_count in results
     ]
