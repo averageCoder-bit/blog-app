@@ -1,0 +1,236 @@
+import { useEffect, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Trash2 } from "lucide-react";
+import Pagination from "./Pagination";
+import { commentCreateSchema } from "../validator/comments";
+import type { UserResponse } from "../validator/users";
+import { filterEnglishText } from "../validator/utils";
+import { getComments, createComment, deleteComment } from "../api/comments";
+
+interface CommentsProps {
+  blogId: number;
+  currentUser: UserResponse | null;
+}
+
+const Comments = ({ blogId, currentUser }: CommentsProps) => {
+  const queryClient = useQueryClient();
+  const [page, setPage] = useState(1);
+  const [comment, setComment] = useState("");
+  const [filter, setFilter] = useState<"all" | "mine">("all");
+  const [sort, setSort] = useState<"newest" | "oldest">("newest");
+  useEffect(() => {
+    setPage(1);
+  }, [filter, sort]);
+  const {
+    data: comments = [],
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["comments", blogId],
+    queryFn: () => getComments(blogId),
+    enabled: Number.isInteger(blogId),
+  });
+
+  const createMutation = useMutation({
+    mutationFn: createComment,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["comments", blogId],
+      });
+
+      setComment("");
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteComment,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["comments", blogId],
+      });
+    },
+  });
+
+  const handleSubmit = () => {
+    if (!currentUser) {
+      return;
+    }
+
+    const result = commentCreateSchema.safeParse({
+      content: comment,
+    });
+
+    if (!result.success) {
+      return;
+    }
+
+    createMutation.mutate({
+      blogId,
+      authorId: currentUser.id,
+      content: result.data.content,
+    });
+  };
+
+  const handleDelete = (commentId: number) => {
+    if (!currentUser) {
+      return;
+    }
+
+    deleteMutation.mutate({
+      commentId,
+      userId: currentUser.id,
+    });
+  };
+
+  const filteredComments = comments
+    .filter((comment) => {
+      if (filter === "mine") {
+        return comment.author_id === currentUser?.id;
+      }
+
+      return true;
+    })
+    .sort((a, b) => {
+      const first = new Date(a.created_at).getTime();
+      const second = new Date(b.created_at).getTime();
+
+      if (sort === "newest") {
+        return second - first;
+      }
+
+      return first - second;
+    });
+  // .sort((a, b) => {
+  //   const aMine = a.author_id === currentUser?.id;
+  //   const bMine = b.author_id === currentUser?.id;
+
+  //   if (aMine === bMine) {
+  //     return 0;
+  //   }
+
+  //   return aMine ? -1 : 1;
+  // });
+
+  const COMMENTS_PER_PAGE = 7;
+
+  const totalPages = Math.ceil(filteredComments.length / COMMENTS_PER_PAGE);
+
+  const paginatedComments = filteredComments.slice(
+    (page - 1) * COMMENTS_PER_PAGE,
+    page * COMMENTS_PER_PAGE,
+  );
+
+  return (
+    <section className="mt-10 w-full">
+      <h2 className="text-xl font-semibold">Comments</h2>
+      <div className="mt-5">
+        <textarea
+          value={comment}
+          onChange={(e) => setComment(filterEnglishText(e.target.value))}
+          placeholder={
+            currentUser ? "Write a comment..." : "Select a user to comment..."
+          }
+          maxLength={500}
+          rows={4}
+          disabled={!currentUser || createMutation.isPending}
+          className="w-full resize-none rounded-xl border border-gray-200 p-4 text-sm outline-none focus:border-gray-400 disabled:cursor-not-allowed disabled:bg-gray-50"
+        />
+
+        <div className="mt-2 flex justify-end">
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={
+              !comment.trim() || !currentUser || createMutation.isPending
+            }
+            className="rounded-full bg-black px-5 py-2 text-sm text-white hover:bg-black/90 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {createMutation.isPending ? "Commenting..." : "Comment"}
+          </button>
+        </div>
+      </div>
+
+      <div className="mt-6 flex flex-col gap-3 border-b border-gray-200 pb-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm font-medium text-gray-600">
+          {comments.length} comments
+        </p>
+
+        <div className="flex items-center gap-2">
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value as "all" | "mine")}
+            className="min-w-0 flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm sm:flex-none"
+          >
+            <option value="all">All comments</option>
+            <option value="mine">My comments</option>
+          </select>
+
+          <select
+            value={sort}
+            onChange={(e) => setSort(e.target.value as "newest" | "oldest")}
+            className="min-w-0 flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm sm:flex-none"
+          >
+            <option value="newest">Newest</option>
+            <option value="oldest">Oldest</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="mt-5 flex flex-col gap-5">
+        {isLoading && (
+          <p className="text-sm text-gray-500">Loading comments...</p>
+        )}
+
+        {isError && (
+          <p className="text-sm text-red-500">Failed to load comments.</p>
+        )}
+
+        {!isLoading && !isError && filteredComments.length === 0 && (
+          <p className="text-sm text-gray-500">No comments yet.</p>
+        )}
+
+        {paginatedComments.map((comment) => (
+          <article
+            key={comment.id}
+            className="rounded-xl border border-gray-200 p-4"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium">{comment.author_username}</p>
+
+                <p className="text-xs text-gray-400">
+                  {new Date(comment.created_at).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </p>
+              </div>
+
+              {comment.author_id === currentUser?.id && (
+                <button
+                  type="button"
+                  title="Delete comment"
+                  onClick={() => handleDelete(comment.id)}
+                  disabled={deleteMutation.isPending}
+                  className="cursor-pointer rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <Trash2 size={16} />
+                </button>
+              )}
+            </div>
+
+            <p className="mt-3 text-sm text-gray-700">{comment.content}</p>
+          </article>
+        ))}
+      </div>
+      <Pagination
+        currentPage={page}
+        totalPages={totalPages}
+        onPageChange={setPage}
+      />
+    </section>
+  );
+};
+
+export default Comments;
