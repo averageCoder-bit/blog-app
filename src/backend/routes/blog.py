@@ -33,11 +33,14 @@ def get_blog(
     user_id: int | None = None,
     db: Session = Depends(get_db),
 ):
+
     liked_subquery = (
-        exists().where(
+        exists()
+        .where(
             Like.blog_id == Blog.id,
             Like.user_id == user_id,
         )
+        .correlate(Blog)
         if user_id is not None
         else literal(False)
     )
@@ -87,10 +90,12 @@ def get_blogs(
     db: Session = Depends(get_db),
 ):
     liked_subquery = (
-        exists().where(
+        exists()
+        .where(
             Like.blog_id == Blog.id,
             Like.user_id == user_id,
         )
+        .correlate(Blog)
         if user_id is not None
         else literal(False)
     )
@@ -216,10 +221,12 @@ def get_user_blogs(
 ):
 
     liked_subquery = (
-        exists().where(
+        exists()
+        .where(
             Like.blog_id == Blog.id,
             Like.user_id == current_user_id,
         )
+        .correlate(Blog)
         if current_user_id is not None
         else literal(False)
     )
