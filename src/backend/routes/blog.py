@@ -83,7 +83,7 @@ def get_blogs(
             Like.user_id == user_id,
         )
         if user_id is not None
-        else False
+        else literal(False)
     )
 
     results = (
