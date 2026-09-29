@@ -62,10 +62,19 @@ def get_blog(
             detail="Blog not found",
         )
 
-    _, like_count, comment_count, liked = result
+    blog, like_count, comment_count, liked = result
 
     return {
-        # ...
+        "id": blog.id,
+        "header": blog.header,
+        "content": blog.content,
+        "excerpt": blog.excerpt,
+        "category": blog.category,
+        "author_id": blog.author_id,
+        "author_username": blog.author.username,
+        "created_at": blog.created_at,
+        "updated_at": blog.updated_at,
+        "image_url": get_blog_image_url(blog.image_key),
         "like_count": like_count,
         "comment_count": comment_count,
         "liked": liked,
