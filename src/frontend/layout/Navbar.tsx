@@ -1,13 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { Bell, User } from "lucide-react";
-import type { BlogResponse } from "../validator/blogs";
 import Logo from "../components/Logo";
 import Profile from "../components/Profile";
 import SearchAndFilterBar from "../components/SearchAndFilterBar";
 import type { UserResponse } from "../validator/users";
-import API_URL from "../api";
 import { getUsers } from "../api/users";
 import { getBlogs } from "../api/blogs";
 

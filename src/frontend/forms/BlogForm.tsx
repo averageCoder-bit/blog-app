@@ -3,8 +3,6 @@ import StarterKit from "@tiptap/starter-kit";
 import { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { UserResponse } from "../validator/users";
-import axios from "axios";
-import API_URL from "../api";
 import { createBlog } from "../api/blogs";
 import {
   Bold,

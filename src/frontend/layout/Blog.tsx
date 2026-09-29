@@ -64,7 +64,8 @@ const Blog = ({ blog, currentUserId }: BlogProps) => {
 
         <div className="flex flex-row items-center space-x-2">
           <img
-            alt="user-profile"
+            src={`https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(blog.author_username)}`}
+            alt={`${blog.author_username} profile`}
             className="h-5 w-5 rounded-full bg-gray-100"
           />
 

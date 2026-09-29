@@ -1,11 +1,8 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
 import { Trash2 } from "lucide-react";
 import Pagination from "./Pagination";
-import API_URL from "../api";
 import { commentCreateSchema } from "../validator/comments";
-import type { Comment } from "../validator/comments";
 import type { UserResponse } from "../validator/users";
 
 import { getComments, createComment, deleteComment } from "../api/comments";
