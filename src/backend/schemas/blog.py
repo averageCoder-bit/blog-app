@@ -28,4 +28,5 @@ class BlogResponse(BaseModel):
     like_count: int
     comment_count: int
     image_url: str | None
+    liked: bool
     model_config = {"from_attributes": True}

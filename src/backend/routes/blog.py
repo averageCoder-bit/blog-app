@@ -8,8 +8,7 @@ from fastapi import (
 )
 from services.r2 import upload_blog_image, get_blog_image_url
 from schemas.blog import BlogCreate, BlogResponse
-
-from sqlalchemy import func
+from sqlalchemy import exists, func, literal
 from db.database import get_db
 from sqlalchemy.orm import Session
 from models.blog import Blog
@@ -31,13 +30,24 @@ router = APIRouter()
 @router.get("/blogs/{id}", response_model=BlogResponse)
 def get_blog(
     id: int,
+    user_id: int | None = None,
     db: Session = Depends(get_db),
 ):
+    liked_subquery = (
+        exists().where(
+            Like.blog_id == Blog.id,
+            Like.user_id == user_id,
+        )
+        if user_id is not None
+        else literal(False)
+    )
+
     result = (
         db.query(
             Blog,
             func.count(func.distinct(Like.id)).label("like_count"),
             func.count(func.distinct(Comment.id)).label("comment_count"),
+            liked_subquery.label("liked"),
         )
         .outerjoin(Like, Like.blog_id == Blog.id)
         .outerjoin(Comment, Comment.blog_id == Blog.id)
@@ -52,33 +62,36 @@ def get_blog(
             detail="Blog not found",
         )
 
-    blog, like_count, comment_count = result
+    _, like_count, comment_count, liked = result
 
     return {
-        "id": blog.id,
-        "header": blog.header,
-        "content": blog.content,
-        "excerpt": blog.excerpt,
-        "category": blog.category,
-        "author_id": blog.author_id,
-        "author_username": blog.author.username,
-        "created_at": blog.created_at,
-        "updated_at": blog.updated_at,
-        "image_url": get_blog_image_url(blog.image_key),
+        # ...
         "like_count": like_count,
         "comment_count": comment_count,
+        "liked": liked,
     }
 
 
 @router.get("/blogs", response_model=list[BlogResponse])
 def get_blogs(
+    user_id: int | None = None,
     db: Session = Depends(get_db),
 ):
+    liked_subquery = (
+        exists().where(
+            Like.blog_id == Blog.id,
+            Like.user_id == user_id,
+        )
+        if user_id is not None
+        else False
+    )
+
     results = (
         db.query(
             Blog,
             func.count(func.distinct(Like.id)).label("like_count"),
             func.count(func.distinct(Comment.id)).label("comment_count"),
+            liked_subquery.label("liked"),
         )
         .outerjoin(Like, Like.blog_id == Blog.id)
         .outerjoin(Comment, Comment.blog_id == Blog.id)
@@ -100,8 +113,9 @@ def get_blogs(
             "image_url": get_blog_image_url(blog.image_key),
             "like_count": like_count,
             "comment_count": comment_count,
+            "liked": liked,
         }
-        for blog, like_count, comment_count in results
+        for blog, like_count, comment_count, liked in results
     ]
 
 
@@ -182,19 +196,31 @@ async def create_blog(
         "image_url": get_blog_image_url(new_blog.image_key),
         "like_count": 0,
         "comment_count": 0,
+        "liked": False,
     }
 
 @router.get("/users/{user_id}/blogs", response_model=list[BlogResponse])
 def get_user_blogs(
     user_id: int,
+    current_user_id: int | None = None,
     db: Session = Depends(get_db),
 ):
+
+    liked_subquery = (
+        exists().where(
+            Like.blog_id == Blog.id,
+            Like.user_id == current_user_id,
+        )
+        if current_user_id is not None
+        else literal(False)
+    )
 
     results = (
         db.query(
             Blog,
             func.count(func.distinct(Like.id)).label("like_count"),
             func.count(func.distinct(Comment.id)).label("comment_count"),
+            liked_subquery.label("liked"),
         )
         .outerjoin(Like, Like.blog_id == Blog.id)
         .outerjoin(Comment, Comment.blog_id == Blog.id)
@@ -217,6 +243,7 @@ def get_user_blogs(
             "image_url": get_blog_image_url(blog.image_key),
             "like_count": like_count,
             "comment_count": comment_count,
+            "liked": liked,
         }
-        for blog, like_count, comment_count in results
+        for blog, like_count, comment_count, liked in results
     ]
