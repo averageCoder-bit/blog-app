@@ -2,13 +2,24 @@ import axios from "axios";
 import API_URL from "./index";
 import type { BlogResponse, BlogCreate } from "../validator/blogs";
 
-export const getBlogs = async (): Promise<BlogResponse[]> => {
-  const response = await axios.get(`${API_URL}/blogs`);
+export const getBlogs = async (
+  currentUserId: number | null,
+): Promise<BlogResponse[]> => {
+  const response = await axios.get(`${API_URL}/blogs`, {
+    params: currentUserId !== null ? { user_id: currentUserId } : {},
+  });
+
   return response.data;
 };
 
-export const getUserBlogs = async (userId: number): Promise<BlogResponse[]> => {
-  const response = await axios.get(`${API_URL}/users/${userId}/blogs`);
+export const getUserBlogs = async (
+  userId: number,
+  currentUserId: number | null,
+): Promise<BlogResponse[]> => {
+  const response = await axios.get(`${API_URL}/users/${userId}/blogs`, {
+    params: currentUserId !== null ? { current_user_id: currentUserId } : {},
+  });
+
   return response.data;
 };
 

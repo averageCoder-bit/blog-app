@@ -27,7 +27,7 @@ const UserBlogs = ({ currentUser }: UserBlogsProps) => {
     error,
   } = useQuery({
     queryKey: ["userBlogs", currentUser?.id],
-    queryFn: () => getUserBlogs(currentUser!.id),
+    queryFn: () => getUserBlogs(currentUser!.id, currentUser!.id),
     enabled: currentUser !== null,
     staleTime: 1000 * 60 * 5,
   });

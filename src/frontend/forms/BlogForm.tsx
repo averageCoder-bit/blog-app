@@ -341,7 +341,8 @@ const BlogForm = ({ currentUser }: BlogFormProps) => {
           <EditorContent
             editor={editor}
             className="
-              min-h-64 w-full p-4 focus:outline-none
+              max-h-96 min-h-64 w-full overflow-y-auto p-4
+              focus:outline-none
               [&_h1]:text-4xl [&_h1]:font-bold
               [&_h2]:text-3xl [&_h2]:font-bold
               [&_h3]:text-2xl [&_h3]:font-semibold

@@ -1,14 +1,12 @@
-import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { Pen } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { SquarePen } from "lucide-react";
-import API_URL from "../api";
 import type { UserResponse } from "../validator/users";
 import Pagination from "../components/Pagination";
 import BlogGrid from "../layout/BlogGrid";
-import type { BlogResponse } from "../validator/blogs";
+import { getBlogs } from "../api/blogs";
 
 type SortField = "date" | "title" | "likes" | "comments";
 type SortOrder = "asc" | "desc";
@@ -20,11 +18,6 @@ interface BlogsProps {
   sort: SortField;
   order: SortOrder;
 }
-
-const getBlogs = async (): Promise<BlogResponse[]> => {
-  const response = await axios.get(`${API_URL}/blogs`);
-  return response.data;
-};
 
 const Blogs = ({ search, currentUser, category, sort, order }: BlogsProps) => {
   useEffect(() => {
@@ -47,8 +40,8 @@ const Blogs = ({ search, currentUser, category, sort, order }: BlogsProps) => {
     isError,
     error,
   } = useQuery({
-    queryKey: ["blogs"],
-    queryFn: getBlogs,
+    queryKey: ["blogs", currentUser?.id ?? null],
+    queryFn: () => getBlogs(currentUser?.id ?? null),
     staleTime: 1000 * 60 * 5,
   });
 

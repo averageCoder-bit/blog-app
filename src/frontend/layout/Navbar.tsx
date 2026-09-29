@@ -65,8 +65,8 @@ const Navbar = ({
   });
 
   const { data: blogs = [] } = useQuery({
-    queryKey: ["blogs"],
-    queryFn: getBlogs,
+    queryKey: ["blogs", currentUser?.id ?? null],
+    queryFn: () => getBlogs(currentUser?.id ?? null),
     staleTime: 1000 * 60 * 5,
   });
 
@@ -103,7 +103,7 @@ const Navbar = ({
                   <User size={14} />
                 </div>
 
-                <p className="hidden max-w-[64px] truncate text-xs font-medium text-gray-700 md:block">
+                <p className="max-w-[64px] truncate text-xs font-medium text-gray-700">
                   {currentUser?.username ?? "Select"}
                 </p>
               </button>
